@@ -1,9 +1,0 @@
----
-triple:          'arm64-apple-darwin'
-binary-path:     '/Users/imalinowski/University/HP-DC/task_3/omp3'
-relocations:
-  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: __Z1fi, symObjAddr: 0x0, symBinAddr: 0x100003DC0, symSize: 0x18 }
-  - { offsetInCU: 0x274, offset: 0x274, size: 0x8, addend: 0x0, symName: __Z1fi, symObjAddr: 0x0, symBinAddr: 0x100003DC0, symSize: 0x18 }
-  - { offsetInCU: 0x2A0, offset: 0x2A0, size: 0x8, addend: 0x0, symName: __Z21calcIntergralParalleli, symObjAddr: 0x18, symBinAddr: 0x100003DD8, symSize: 0x11C }
-  - { offsetInCU: 0x346, offset: 0x346, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x134, symBinAddr: 0x100003EF4, symSize: 0x70 }
-...
