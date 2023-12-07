@@ -20,7 +20,7 @@ void findMinElementParallel(int VECTOR_SIZE, int threads) {
   int chunkSize = VECTOR_SIZE / threads;
   omp_set_num_threads(threads);
 
-  printf("N = %d, Threads = %d\n", VECTOR_SIZE, threads);
+  printf("VECTOR_SIZE = %d, Threads = %d\n", VECTOR_SIZE, threads);
 
   double time_start = omp_get_wtime();
 
