@@ -12,40 +12,37 @@ int* generateRandomArray(int size) {
   return a;
 }
 
-void findMinElementParallel(int VECTOR_SIZE, int threads) {
-  int* a = generateRandomArray(VECTOR_SIZE);
+int VECTOR_SIZE = 1000000;
+int* a = generateRandomArray(VECTOR_SIZE);
 
-  srand(static_cast<unsigned int>(time(0)));
-
-  int chunkSize = VECTOR_SIZE / threads;
+void findMinElementParallel(int threads) {
   omp_set_num_threads(threads);
 
-  printf("VECTOR_SIZE = %d, Threads = %d\n", VECTOR_SIZE, threads);
+  int min_el = 99999;
+  int chunkSize = VECTOR_SIZE / threads;
 
   double time_start = omp_get_wtime();
 
-  int min_el = 99999;
-
   #pragma omp parallel shared(a, VECTOR_SIZE)
   {
-    #pragma omp for schedule(dynamic, chunkSize) reduction (min:min_el)
+    #pragma omp for schedule(dynamic, chunkSize) reduction(min:min_el)
       for (int i = 0; i < VECTOR_SIZE; ++i)
-        if (a[i] < min_el)
+        if (a[i] < min_el){
 					  min_el = a[i];
+        }
   }
 
   double delta = (omp_get_wtime() - time_start);
 
-  printf("time: %f\n", delta);
+  printf("time: %f threads = %d\n", delta, threads);
 }
 
 int main()
 {
-  int VECTOR_SIZE = 10000;
   int threads = 1;
 
-  for (int i = threads; i < 10; i++){
+  for (int i = threads; i <= 7; i++){
+    findMinElementParallel(threads);
     threads += 1;
-    findMinElementParallel(VECTOR_SIZE, threads);
   }
 }
