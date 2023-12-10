@@ -12,14 +12,16 @@ int* generateRandomArray(int size) {
   return a;
 }
 
-void reduction(int threads) {
-  printf("Threads = %d\n", threads);
-  int arraySize = 100000;
-  int* array = generateRandomArray(arraySize);
-  int sum = 0;
+int arraySize = 100000; // 100_000
+int* array = generateRandomArray(arraySize);
 
-  int chunkSize = arraySize/threads;
+void reduction(int threads) {
   omp_set_num_threads(threads);
+
+  int sum = 0;
+  int chunkSize = arraySize/threads;
+
+  printf("threads = %d\n", threads);
 
   // Reducion
   double startTime = omp_get_wtime();
@@ -28,10 +30,9 @@ void reduction(int threads) {
   {
     sum += array[i];
   }
-  double endTime = omp_get_wtime();
-  double timeSpent = (endTime - startTime);
-
-  printf("Sum = %d; Reduction spent time = %f\n", sum, timeSpent);
+  double delta = (omp_get_wtime() - startTime);
+  printf("Reduction\n");
+  printf("time = %f\n", delta);
   sum = 0;
 
   // Atomic
@@ -42,9 +43,9 @@ void reduction(int threads) {
     #pragma omp atomic
     sum += array[i];
   }
-  endTime = omp_get_wtime();
-  timeSpent = endTime - startTime;
-  printf("Sum = %d; Atomic spent time = %f\n", sum, timeSpent);
+  delta = (omp_get_wtime() - startTime);
+  printf("Atomic\n");
+  printf("time = %f\n", delta);
   sum = 0;
 
   // Critical
@@ -55,9 +56,9 @@ void reduction(int threads) {
     #pragma omp critical
     sum += array[i];
   }
-  endTime = omp_get_wtime();
-  timeSpent = endTime - startTime;
-  printf("Sum = %d; Critical spent time = %f\n", sum, timeSpent);
+  delta = (omp_get_wtime() - startTime);
+  printf("Critical\n");
+  printf("time = %f\n", delta);
   sum = 0;
 
   // Lock
@@ -71,10 +72,11 @@ void reduction(int threads) {
     sum += array[i];
     omp_unset_lock(&lock);
   }
-  endTime = omp_get_wtime();
-  timeSpent = endTime - startTime;
-  printf("Sum = %d; Lock spent time = %f\n", sum, timeSpent);
+  delta = (omp_get_wtime() - startTime);
+  printf("Lock\n");
+  printf("time = %f\n", delta);
   sum = 0;
+
   printf("--------------------------------------------------\n");
 }
 
@@ -82,7 +84,7 @@ int main()
 {
   int threads = 1;
 
-  for (int i = threads; i <= 10; i++){
+  for (int i = threads; i <= 7; i++){
     reduction(threads);
     threads += 1;
   }
