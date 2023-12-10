@@ -4,10 +4,11 @@
 #include <ctime> 
 
 int f(int x) {
-  return x^2;
+  return 1 * x^2 + 2 * x + 3;
 }
 
 void calcIntergralParallel(int threads) {
+  omp_set_num_threads(threads);
   
   // Init params
   int N = 1000000;
@@ -15,13 +16,9 @@ void calcIntergralParallel(int threads) {
   float b = 100;
   float h = (b - a) / N;
 
-  omp_set_num_threads(threads);
-
-  printf("Threads = %d\n", threads);
+  float sum = 0;
 
   double time_start = omp_get_wtime();
-
-  float sum = 0;
 
   #pragma omp parallel shared(N, a, b, h)
   {
@@ -35,15 +32,14 @@ void calcIntergralParallel(int threads) {
 
   double delta = (omp_get_wtime() - time_start);
 
-  printf("Integral value = %f\n", sum);
-  printf("time: %f\n", delta);
+  printf("time: %f threads = %d\n", delta, threads);
 }
 
 int main()
 {
   int threads = 1;
 
-  for (int i = threads; i <= 10; i++){
+  for (int i = threads; i <= 7; i++){
     calcIntergralParallel(threads);
     threads += 1;
   }
