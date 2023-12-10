@@ -12,40 +12,37 @@ int* generateRandomArray(int size) {
   return a;
 }
 
+int VECTOR_SIZE = 1000000; //1_000_000
+int* a = generateRandomArray(VECTOR_SIZE);
+int* b = generateRandomArray(VECTOR_SIZE);
+
 void calcVectorsMultiply(int VECTOR_SIZE, int threads) {
-  int* a = generateRandomArray(VECTOR_SIZE);
-  int* b = generateRandomArray(VECTOR_SIZE);
-
-  srand(static_cast<unsigned int>(time(0)));
-
-  int chunkSize = VECTOR_SIZE / threads;
   omp_set_num_threads(threads);
 
-  printf("VectorSize = %d, Threads = %d\n", VECTOR_SIZE, threads);
+  int sum = 0;
+  int chunkSize = VECTOR_SIZE / threads;
 
   double time_start = omp_get_wtime();
-
-  int sum = 0;
 
   #pragma omp parallel shared(a, b, VECTOR_SIZE)
   {
     #pragma omp for schedule(dynamic, chunkSize) reduction(+: sum)
-      for (int i = 0; i < VECTOR_SIZE; ++i)
+      for (int i = 0; i < VECTOR_SIZE; ++i) {
         sum += a[i] * b[i];
+      }
   }
 
   double delta = (omp_get_wtime() - time_start);
 
-  printf("time: %f\n", delta);
+  printf("time: %f threads = %d\n", delta, threads);
 }
 
 int main()
 {
-  int VECTOR_SIZE = 10000;
   int threads = 1;
 
-  for (int i = threads; i < 10; i++){
-    threads += 1;
+  for (int i = threads; i <= 10; i++){
     calcVectorsMultiply(VECTOR_SIZE, threads);
+    threads += 1;
   }
 }
