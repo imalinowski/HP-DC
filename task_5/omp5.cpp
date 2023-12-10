@@ -36,70 +36,63 @@ int** generateTriangularMatrix(int size) {
   return matrix;
 }
 
-void calcMaxMinMatrix(int matrixSize, int** matrix, int threads) {
+int matrixSize = 1000; // 1_000
 
-  int chunkSize = matrixSize / threads;
+int findMinOfArray(int* array) {
+  int minRowValue = 99999;
+  for (int j = 0; j < matrixSize; ++j)
+  {
+    if (array[j] < minRowValue) {
+      minRowValue = array[j];
+    }
+  }
+  return minRowValue;
+}
+
+int** ribbonMatrix = generateRibbonMatrix(matrixSize);
+int** triangularMatrix = generateTriangularMatrix(matrixSize);
+int** matrix = ribbonMatrix;
+
+void calcMaxMinMatrix(int threads) {
   omp_set_num_threads(threads);
 
-  printf("ChunkSize = %d, Threads = %d\n", chunkSize, threads);
+  int maxValue = 0;
+  int chunkSize = matrixSize / threads;
 
   double time_start = omp_get_wtime();
 
-  int maxValue = 0;
-
   #pragma omp parallel shared(matrix, maxValue)
   {
-    #pragma omp for schedule(dynamic, chunkSize)
+    #pragma omp for schedule(dynamic, chunkSize) reduction(max:maxValue)
       for (int i = 0; i < matrixSize; ++i) {
-        int minRowValue = 9999;
-
-        for (int j = 0; j < matrixSize; ++j)
-        {
-          if (matrix[i][j] < minRowValue)
-          {
-            minRowValue = matrix[i][j];
-          }
-        }
-
-        if (minRowValue > maxValue)
-        {
-          #pragma omp critical
-          if (minRowValue > maxValue)
-          {
-            maxValue = minRowValue;
-          }
-        }
+        int minRowValue = findMinOfArray(matrix[i]);
+        maxValue = minRowValue;
       }
   }
 
   double delta = (omp_get_wtime() - time_start);
 
-  printf("time: %f\n", delta);
+  printf("time: %f threads = %d\n", delta, threads);
 }
 
 int main()
 {
   int threads = 1;
-  int matrixSize = 100;
 
   printf("Ribbon Matrix\n");
-  for (int i = threads; i <= 10; i++){
-    calcMaxMinMatrix(
-      matrixSize,
-      generateRibbonMatrix(matrixSize),
-      threads
-    );
+  matrix = ribbonMatrix;
+  for (int i = threads; i <= 7; i++){
+    calcMaxMinMatrix(threads);
     threads += 1;
   }
+
   printf("------------------------------------\n");
+
   printf("Triangular Matrix\n");
   threads = 1;
-  for (int j = threads; j <= 10; j++){
-    calcMaxMinMatrix(
-      matrixSize,
-      generateTriangularMatrix(matrixSize),
-      threads
-    );
+  matrix = triangularMatrix;
+  for (int j = threads; j <= 7; j++){
+    calcMaxMinMatrix(threads);
     threads += 1;
   }
 }
